@@ -14,11 +14,19 @@ struct DiagnosticsView: View {
             Text("Servicos gerenciados: \(model.managedServices.count)")
             Text("Fase do Voice Lab: \(model.voiceLabPhase.rawValue)")
             Text("Duracao util capturada: \(model.totalRecordedSeconds.formatted(.number.precision(.fractionLength(1))))s")
+            if let latestSampleSummary = model.latestSampleSummary {
+                Text("Amostras detectadas no runtime: \(latestSampleSummary.samples.count)")
+                Text("Treino pronto no runtime: \(latestSampleSummary.ready ? "sim" : "nao")")
+            }
             if let result = model.enrollmentResult {
                 Text("Latencia do build do perfil: \(result.latencyMilliseconds) ms")
             }
             if let synthesis = model.lastSynthesisResult {
                 Text("Ultima sintese: \(synthesis.latencyMilliseconds) ms via \(synthesis.engine)")
+            }
+            if let smoke = model.lastSmokeReport {
+                Text("Smoke operacional: \(smoke.status)")
+                Text("Relatorio: \(smoke.reportPath)")
             }
             if !model.runtimeWarnings.isEmpty {
                 Text("Warnings: \(model.runtimeWarnings.joined(separator: " | "))")

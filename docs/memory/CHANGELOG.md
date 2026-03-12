@@ -1,6 +1,11 @@
 # Changelog - Voitran
 
 ## 2026-03-12
+- primeira versao operacional do `Voice Lab` fechada com reaproveitamento de amostras gravadas, treino automatizado e smoke test ponta a ponta;
+- `voice_lab.sh` ganhou automacao real para `latest-samples`, `train-latest` e `smoke`, usando as gravacoes locais do runtime;
+- `benchmark_local.sh smoke` passou a executar o smoke operacional do `Voice Lab`;
+- `VoitranMac` passou a expor na interface as acoes `Carregar audios gravados`, `Treinar com audios gravados` e `Smoke test operacional`;
+- app instalado validado com scripts embarcados do `Voice Lab`, incluindo treino e sintese com as amostras reais do runtime;
 - `Control Plane` passou a ser marcado como indisponivel no app instalado, com detalhe explicito de que o servico existe apenas no ambiente de desenvolvimento;
 - `Voice Lab` e `Settings` ganharam acao explicita de `Novo perfil de voz` para reiniciar a captura sem ficar preso ao perfil anterior;
 - icone nativo do `VoitranMac` passou a ser gerado localmente e embarcado no bundle `.app` e no `.pkg`;

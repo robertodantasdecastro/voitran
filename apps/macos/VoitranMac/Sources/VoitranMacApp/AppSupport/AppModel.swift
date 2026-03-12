@@ -59,6 +59,8 @@ final class AppModel: ObservableObject {
     @Published var isBusy = false
     @Published var debugModeEnabled = true
     @Published var debugLogTail = "nenhum log disponivel"
+    @Published var latestSampleSummary: VoiceLabSampleSummary?
+    @Published var lastSmokeReport: VoiceLabSmokeReport?
 
     let capabilityProfile = CapabilityProfile(
         deviceClass: "mac-apple-silicon",
@@ -70,6 +72,7 @@ final class AppModel: ObservableObject {
     private let servicesRuntimeService = ServicesRuntimeService()
     private let audioCaptureService = AudioCaptureService()
     private let audioPlaybackService = AudioPlaybackService()
+    private let voiceLabAutomationService = VoiceLabAutomationService()
     private let logger = AppDebugLogger.shared
     private var recordingTimer: Timer?
     private var currentRecordingURL: URL?
@@ -109,6 +112,18 @@ final class AppModel: ObservableObject {
         !isBusy && voiceLabPhase != .recording
     }
 
+    var canUseCapturedSamples: Bool {
+        !isBusy && voiceLabPhase != .recording
+    }
+
+    var canTrainFromLatestSamples: Bool {
+        canUseCapturedSamples && latestSampleSummary?.ready == true
+    }
+
+    var canRunOperationalSmokeTest: Bool {
+        canTrainFromLatestSamples
+    }
+
     func handleApplicationLaunch() async {
         guard !didLaunchLifecycle else { return }
         didLaunchLifecycle = true
@@ -116,6 +131,7 @@ final class AppModel: ObservableObject {
         await startManagedDependencies()
         await refreshRuntime()
         await loadExistingProfiles()
+        await refreshLatestSamples()
         refreshDebugLogTail()
     }
 
@@ -224,6 +240,24 @@ final class AppModel: ObservableObject {
             debug("bootstrap do runtime concluido", category: "runtime")
             await refreshRuntime()
             await refreshManagedServices()
+        } catch {
+            setError(error)
+        }
+    }
+
+    func refreshLatestSamples() async {
+        do {
+            let summary = try await voiceLabAutomationService.latestSamples()
+            latestSampleSummary = summary
+            debug(
+                "amostras mais recentes carregadas",
+                category: "voice_lab",
+                metadata: [
+                    "sample_count": "\(summary.samples.count)",
+                    "total_duration_seconds": "\(summary.totalDurationSeconds)",
+                    "ready": "\(summary.ready)"
+                ]
+            )
         } catch {
             setError(error)
         }
@@ -386,6 +420,74 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func loadLatestCapturedSamplesIntoSession() async {
+        isBusy = true
+        defer { isBusy = false }
+
+        do {
+            let summary = try await voiceLabAutomationService.latestSamples()
+            latestSampleSummary = summary
+            applySampleSummary(summary)
+            debug("amostras carregadas na sessao do app", category: "voice_lab", metadata: ["sample_count": "\(summary.samples.count)"])
+        } catch {
+            setError(error)
+        }
+    }
+
+    func trainProfileFromLatestCapturedSamples() async {
+        isBusy = true
+        defer { isBusy = false }
+
+        do {
+            let report = try await voiceLabAutomationService.trainLatest(
+                ownerLocalID: ownerLocalID,
+                sourceLocale: sourceLocale,
+                targetLocale: targetLocale
+            )
+            latestSampleSummary = report.sampleSummary
+            applySampleSummary(report.sampleSummary)
+            currentProfile = report.enrollment.voiceProfile
+            enrollmentResult = report.enrollment
+            runtimeWarnings = report.enrollment.warnings
+            consentAccepted = true
+            readyChecklistComplete = true
+            sessionStatus = "voice-profile-ready"
+            debug("treino concluido com amostras gravadas", category: "voice_lab", metadata: ["profile_id": report.enrollment.voiceProfile.id])
+            reconcileVoiceLabState()
+        } catch {
+            setError(error)
+        }
+    }
+
+    func runOperationalSmokeTest() async {
+        isBusy = true
+        defer { isBusy = false }
+
+        do {
+            let report = try await voiceLabAutomationService.smoke(
+                ownerLocalID: ownerLocalID,
+                sourceLocale: sourceLocale,
+                targetLocale: targetLocale,
+                text: synthesisText
+            )
+            latestSampleSummary = report.sampleSummary
+            applySampleSummary(report.sampleSummary)
+            currentProfile = report.enrollment.voiceProfile
+            enrollmentResult = report.enrollment
+            lastSynthesisResult = report.synthesis
+            lastSmokeReport = report
+            runtimeHealth = report.health
+            runtimeWarnings = report.health.warnings + report.synthesis.warnings
+            consentAccepted = true
+            readyChecklistComplete = true
+            sessionStatus = "voice-profile-ready"
+            debug("smoke test operacional concluido", category: "voice_lab", metadata: ["report_path": report.reportPath, "profile_id": report.enrollment.voiceProfile.id])
+            reconcileVoiceLabState()
+        } catch {
+            setError(error)
+        }
+    }
+
     func revokeCurrentProfile() async {
         guard let currentProfile else { return }
 
@@ -416,6 +518,7 @@ final class AppModel: ObservableObject {
         currentProfile = nil
         enrollmentResult = nil
         lastSynthesisResult = nil
+        lastSmokeReport = nil
         lastErrorMessage = nil
         sessionStatus = "idle"
         debug("novo perfil vocal iniciado", category: "voice_lab")
@@ -472,6 +575,27 @@ final class AppModel: ObservableObject {
 
     private func resolvedDuration(at url: URL) -> Double {
         AudioCaptureService.recordedDuration(at: url)
+    }
+
+    private func applySampleSummary(_ summary: VoiceLabSampleSummary) {
+        let samples = summary.samples.compactMap { item -> RecordedVoiceSample? in
+            guard let phrase = guidedPhrases.first(where: { $0.id == item.phraseID }) else {
+                return nil
+            }
+
+            let modifiedDate = ISO8601DateFormatter().date(from: item.modifiedAt) ?? Date()
+            return RecordedVoiceSample(
+                id: item.path,
+                phrase: phrase,
+                url: URL(fileURLWithPath: item.path),
+                durationSeconds: item.durationSeconds,
+                createdAt: modifiedDate
+            )
+        }
+
+        recordedSamples = samples.sorted { $0.createdAt < $1.createdAt }
+        currentPhraseIndex = min(recordedSamples.count, max(guidedPhrases.count - 1, 0))
+        reconcileVoiceLabState()
     }
 
     private func reconcileVoiceLabState() {

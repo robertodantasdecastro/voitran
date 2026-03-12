@@ -56,6 +56,10 @@ enum RuntimePaths {
         supportRoot.appendingPathComponent("scripts/bootstrap_voice_runtime.sh")
     }
 
+    static var voiceLabScript: URL {
+        supportRoot.appendingPathComponent("scripts/voice_lab.sh")
+    }
+
     static var workingDirectory: URL {
         supportRoot
     }
@@ -78,5 +82,9 @@ enum RuntimePaths {
 
     static var appLogsDirectory: URL {
         runtimeRoot.appendingPathComponent("logs/app", isDirectory: true)
+    }
+
+    static var voiceLabLogsDirectory: URL {
+        runtimeRoot.appendingPathComponent("logs/voice-lab", isDirectory: true)
     }
 }

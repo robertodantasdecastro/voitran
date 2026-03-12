@@ -30,11 +30,16 @@ bash scripts/backend_dev.sh run
 bash scripts/benchmark_local.sh smoke
 ```
 
+O modo `smoke` atual executa o smoke operacional do `Voice Lab` usando as amostras reais mais recentes do runtime.
+
 ## Voice Lab
 ```bash
 bash scripts/voice_lab.sh bootstrap
 bash scripts/voice_lab.sh health
 bash scripts/voice_lab.sh list-profiles
+bash scripts/voice_lab.sh latest-samples
+bash scripts/voice_lab.sh train-latest --owner-local-id local-user --source-locale pt-BR --target-locale en
+bash scripts/voice_lab.sh smoke --owner-local-id local-user --source-locale pt-BR --target-locale en
 bash scripts/voice_lab.sh ingest
 bash scripts/voice_lab.sh eval
 ```

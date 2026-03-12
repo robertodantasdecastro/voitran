@@ -21,6 +21,11 @@ struct SessionView: View {
                 Text("Perfil ativo: \(profile.id)")
                 Text("Engine: \(profile.engine)")
             }
+            if let smoke = model.lastSmokeReport {
+                Text("Smoke operacional validado em: \(smoke.reportPath)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             Spacer()
         }
         .textFieldStyle(.roundedBorder)

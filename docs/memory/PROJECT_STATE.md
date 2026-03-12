@@ -51,6 +51,7 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 
 ## Estado atual de produto
 - `VoitranMac` possui fluxo guiado de `Voice Lab` para consentimento, gravacao local, build de perfil e preview de sintese;
+- `VoitranMac` tambem consegue reaproveitar amostras ja gravadas, treinar perfil via automacao e rodar smoke test operacional direto pela interface;
 - sidecar local em `Python` responde via CLI JSON para operacoes de voz;
 - fallback atual de preview usa `system-say` se `OpenVoice V2` nao estiver instalado no runtime;
 - perfil vocal local ja possui contrato pronto para reuso nas proximas fases;
@@ -58,3 +59,4 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 - bundle `.app` embarca scripts operacionais em `Contents/Resources/scripts` para rodar instalado fora do repo;
 - pacote instalavel `.pkg` e bundle `.app` estao preparados em `dist/`;
 - instalacao local em `/Applications/VoitranMac.app` ja foi validada com `health`, `status-all`, launch e quit do app instalado.
+- smoke test do `Voice Lab` foi validado no app instalado usando audios reais em `/Volumes/SSDExterno/Voitran_runtime/voices/samples`.

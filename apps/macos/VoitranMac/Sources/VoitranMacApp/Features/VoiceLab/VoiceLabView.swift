@@ -126,6 +126,26 @@ struct VoiceLabView: View {
                         model.startNewVoiceProfile()
                     }
                     .disabled(!model.canStartNewVoiceProfile)
+
+                    Button("Carregar audios gravados") {
+                        Task { await model.loadLatestCapturedSamplesIntoSession() }
+                    }
+                    .disabled(!model.canUseCapturedSamples)
+
+                    Button("Treinar com audios gravados") {
+                        Task { await model.trainProfileFromLatestCapturedSamples() }
+                    }
+                    .disabled(!model.canTrainFromLatestSamples)
+                }
+
+                Button("Smoke test operacional") {
+                    Task { await model.runOperationalSmokeTest() }
+                }
+                .disabled(!model.canRunOperationalSmokeTest)
+
+                if let sampleSummary = model.latestSampleSummary {
+                    Text("Amostras prontas no runtime: \(sampleSummary.samples.count) / \(sampleSummary.totalDurationSeconds.formatted(.number.precision(.fractionLength(1))))s")
+                        .foregroundStyle(sampleSummary.ready ? .green : .secondary)
                 }
 
                 ForEach(model.recordedSamples) { sample in
@@ -163,6 +183,11 @@ struct VoiceLabView: View {
                     Text("Audio: \(synthesis.outputAudioPath)")
                     Text("Latencia: \(synthesis.latencyMilliseconds) ms")
                     Text("Engine: \(synthesis.engine)")
+                }
+                if let smoke = model.lastSmokeReport {
+                    Text("Smoke report: \(smoke.reportPath)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

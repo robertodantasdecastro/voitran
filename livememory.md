@@ -14,6 +14,7 @@
 - `2026-03-12`: modo debug do app ativado com log local; estado do `Voice Lab` passou a reconciliar perfis carregados no launch.
 - `2026-03-12`: icone do `VoitranMac` passou a ser gerado e empacotado automaticamente no build do app.
 - `2026-03-12`: `Control Plane` do bundle instalado passou a ser tratado como indisponivel; fluxo `Novo perfil de voz` foi adicionado ao `Voice Lab`.
+- `2026-03-12`: primeira versao operacional do `Voice Lab` validada com reaproveitamento de audios gravados, treino automatizado e smoke test no bundle instalado.
 
 ## Foco ativo
 - consolidar o runtime local de clonagem com `OpenVoice V2` no sidecar;

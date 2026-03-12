@@ -20,14 +20,19 @@ struct SettingsView: View {
                 .font(.title3.bold())
             Text("Path do runtime: \(RuntimePaths.runtimeRoot.path)")
             Text("Logs do app: \(RuntimePaths.appLogsDirectory.appendingPathComponent("voitran-macos.log").path)")
+            Text("Logs do Voice Lab: \(RuntimePaths.voiceLabLogsDirectory.path)")
             Text("Idiomas aprovados: \(model.voicePolicy.approvedLocales.joined(separator: ", "))")
             Text("Retencao local: \(model.voicePolicy.retentionPolicy)")
             Text("Script de servicos: \(RuntimePaths.servicesScript.path)")
+            Text("Script do Voice Lab: \(RuntimePaths.voiceLabScript.path)")
             Button("Bootstrap do runtime") {
                 Task { await model.bootstrapRuntime() }
             }
             Button("Atualizar logs") {
                 model.refreshDebugLogTail()
+            }
+            Button("Atualizar amostras gravadas") {
+                Task { await model.refreshLatestSamples() }
             }
             Divider()
             Text("Servicos dependentes")
@@ -88,6 +93,14 @@ struct SettingsView: View {
                 model.startNewVoiceProfile()
             }
             .disabled(!model.canStartNewVoiceProfile)
+            Button("Treinar com audios gravados") {
+                Task { await model.trainProfileFromLatestCapturedSamples() }
+            }
+            .disabled(!model.canTrainFromLatestSamples)
+            Button("Rodar smoke test operacional") {
+                Task { await model.runOperationalSmokeTest() }
+            }
+            .disabled(!model.canRunOperationalSmokeTest)
             Spacer()
         }
         .padding(24)

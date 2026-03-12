@@ -28,6 +28,12 @@ struct HomeView: View {
             } else {
                 Text("Perfil vocal ativo: nenhum")
             }
+            if let latestSampleSummary = model.latestSampleSummary {
+                Text("Amostras prontas: \(latestSampleSummary.samples.count) arquivos / \(latestSampleSummary.totalDurationSeconds.formatted(.number.precision(.fractionLength(1))))s")
+            }
+            if let smoke = model.lastSmokeReport {
+                Text("Smoke operacional: \(smoke.status)")
+            }
             if !model.servicesMessage.isEmpty {
                 Text(model.servicesMessage)
                     .foregroundStyle(.secondary)
