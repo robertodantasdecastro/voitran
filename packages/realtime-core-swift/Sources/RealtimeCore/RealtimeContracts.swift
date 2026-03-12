@@ -124,6 +124,14 @@ public struct VoiceEnrollmentRequest: Sendable, Codable, Equatable {
         self.samplePaths = samplePaths
         self.consentManifestPath = consentManifestPath
     }
+
+    enum CodingKeys: String, CodingKey {
+        case ownerLocalID = "owner_local_id"
+        case locale
+        case approvedLocales = "approved_locales"
+        case samplePaths = "sample_paths"
+        case consentManifestPath = "consent_manifest_path"
+    }
 }
 
 public struct VoiceEnrollmentResult: Sendable, Codable, Equatable {
@@ -154,6 +162,12 @@ public struct VoiceSynthesisRequest: Sendable, Codable, Equatable {
         self.text = text
         self.voiceProfileID = voiceProfileID
         self.locale = locale
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case text
+        case voiceProfileID = "voice_profile_id"
+        case locale
     }
 }
 

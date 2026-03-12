@@ -57,10 +57,10 @@ final class AudioCaptureService: NSObject {
             throw AudioCaptureError.notRecording
         }
 
+        let recordingURL = recorder.url
         recorder.stop()
-        let duration = recorder.currentTime
         self.recorder = nil
-        return duration
+        return Self.recordedDuration(at: recordingURL)
     }
 
     func currentPowerLevel() -> Double {
@@ -71,5 +71,22 @@ final class AudioCaptureService: NSObject {
         recorder.updateMeters()
         let averagePower = Double(recorder.averagePower(forChannel: 0))
         return max(0, min(1, (averagePower + 60) / 60))
+    }
+
+    static func recordedDuration(at url: URL) -> Double {
+        guard
+            let audioFile = try? AVAudioFile(forReading: url),
+            audioFile.fileFormat.sampleRate > 0
+        else {
+            return 0
+        }
+
+        let seconds = Double(audioFile.length) / audioFile.fileFormat.sampleRate
+
+        guard seconds.isFinite, seconds > 0 else {
+            return 0
+        }
+
+        return seconds
     }
 }

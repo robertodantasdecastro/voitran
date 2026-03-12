@@ -128,7 +128,7 @@ struct VoiceLabView: View {
                         Text(sample.phrase.id + " - " + sample.phrase.locale)
                             .font(.subheadline.bold())
                         Text(sample.url.lastPathComponent)
-                        Text("\(sample.durationSeconds.formatted(.number.precision(.fractionLength(1))))s")
+                        Text("\(model.resolvedDuration(for: sample).formatted(.number.precision(.fractionLength(1))))s")
                             .foregroundStyle(.secondary)
                     }
                 }

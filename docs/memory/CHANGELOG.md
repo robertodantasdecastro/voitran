@@ -1,6 +1,8 @@
 # Changelog - Voitran
 
 ## 2026-03-12
+- `Voice Lab` passou a medir a duracao das gravacoes pelo arquivo WAV final, corrigindo amostras que apareciam como `0,0s` na UI;
+- contratos JSON de voz foram alinhados em `snake_case` para o sidecar, corrigindo erros como `voice_profile_id e obrigatorio` em sintese e revogacao;
 - bundle instalado do `VoitranMac` passou a embarcar scripts operacionais em `Contents/Resources/scripts`;
 - resolucao de paths do app macOS foi ajustada para priorizar recursos do bundle quando executado fora do repo;
 - `install_voitran_macos.sh` e `package_voitran_macos.sh` passaram a usar `ditto` para copiar o `.app` com consistencia;

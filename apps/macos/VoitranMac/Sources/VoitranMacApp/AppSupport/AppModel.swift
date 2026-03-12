@@ -79,7 +79,7 @@ final class AppModel: ObservableObject {
     }
 
     var totalRecordedSeconds: Double {
-        recordedSamples.reduce(0) { $0 + $1.durationSeconds }
+        recordedSamples.reduce(0) { $0 + resolvedDuration(for: $1) }
     }
 
     var runtimeReady: Bool {
@@ -260,7 +260,7 @@ final class AppModel: ObservableObject {
                 id: UUID().uuidString,
                 phrase: currentPhrase,
                 url: sampleURL,
-                durationSeconds: duration,
+                durationSeconds: max(duration, resolvedDuration(at: sampleURL)),
                 createdAt: Date()
             )
 
@@ -396,6 +396,14 @@ final class AppModel: ObservableObject {
     private func setErrorMessage(_ message: String) {
         lastErrorMessage = message
         voiceLabPhase = .error
+    }
+
+    func resolvedDuration(for sample: RecordedVoiceSample) -> Double {
+        max(sample.durationSeconds, resolvedDuration(at: sample.url))
+    }
+
+    private func resolvedDuration(at url: URL) -> Double {
+        AudioCaptureService.recordedDuration(at: url)
     }
 }
 
