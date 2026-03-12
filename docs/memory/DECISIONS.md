@@ -52,3 +52,23 @@
   - remover dependencia acidental do repo pai `peticionei`;
   - garantir identidade de historico e fluxo de entrega do `Voitran`;
   - reduzir falhas e ruido de Git causados por metadados do macOS no SSD externo.
+
+## 2026-03-12 - Sidecar local de voz em Python controlado pelo app macOS
+- Decisao:
+  - integrar a fase 1 de voz local por sidecar `Python` com CLI JSON, controlado pelo `VoitranMac`;
+  - manter `OpenVoice V2` como engine alvo;
+  - operar com fallback local de `system-say` enquanto o runtime do `OpenVoice V2` nao estiver instalado.
+- Motivo:
+  - acelerar a entrega da UX e do contrato do `Voice Lab` sem bloquear o app por empacotamento pesado;
+  - preservar o caminho de evolucao para clonagem local real e futura pipeline de traducao;
+  - manter o runtime pesado fora do workspace versionado.
+
+## 2026-03-12 - Lifecycle do app controla dependencias reais da fase atual
+- Decisao:
+  - iniciar automaticamente no launch apenas `Voice Runtime` e `Voice Sidecar CLI`, que sao dependencias reais do `Voice Lab`;
+  - manter o `control-plane` como servico opcional e gerenciavel pela interface, sem subir automaticamente nesta fase;
+  - empacotar o app em bundle `.app` e pacote `.pkg` por scripts do repositorio.
+- Motivo:
+  - alinhar lifecycle automatico com o escopo real da fase local de voz;
+  - evitar falhas de abertura do app por dependencias ainda nao necessarias ao fluxo atual;
+  - deixar a aplicacao pronta para instalacao e teste local imediato.

@@ -32,6 +32,29 @@ bash scripts/benchmark_local.sh smoke
 
 ## Voice Lab
 ```bash
+bash scripts/voice_lab.sh bootstrap
+bash scripts/voice_lab.sh health
+bash scripts/voice_lab.sh list-profiles
 bash scripts/voice_lab.sh ingest
 bash scripts/voice_lab.sh eval
+```
+
+## Voice Lab sidecar
+```bash
+bash scripts/voice_runtime.sh health
+bash scripts/voice_runtime.sh list-profiles
+```
+
+## Lifecycle e servicos
+```bash
+bash scripts/voitran_services.sh status-all
+bash scripts/voitran_services.sh start-all
+bash scripts/voitran_services.sh stop-all
+```
+
+## Build e instalacao macOS
+```bash
+bash scripts/build_voitran_macos_app.sh
+bash scripts/package_voitran_macos.sh
+bash scripts/install_voitran_macos.sh
 ```

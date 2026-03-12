@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct RootView: View {
-    @StateObject private var model = AppModel()
+    @ObservedObject var model: AppModel
 
     var body: some View {
         TabView {
-            HomeView()
+            HomeView(model: model)
                 .tabItem { Text("Home") }
 
             SessionView(model: model)
@@ -14,7 +14,7 @@ struct RootView: View {
             VoiceLabView(model: model)
                 .tabItem { Text("Voice Lab") }
 
-            SettingsView()
+            SettingsView(model: model)
                 .tabItem { Text("Settings") }
 
             DiagnosticsView(model: model)

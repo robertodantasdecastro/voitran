@@ -53,3 +53,13 @@ Voitran e uma linha de produto para chamadas com traducao em tempo real, sintese
 - `backend/control-plane` stubado em `Go`;
 - shell `SwiftUI` do `VoitranMac` publicado;
 - placeholders de `iOS` e `Android` criados.
+
+## Instalacao macOS
+- gerar bundle local: `bash scripts/build_voitran_macos_app.sh`
+- gerar pacote instalavel: `bash scripts/package_voitran_macos.sh`
+- instalar localmente: `bash scripts/install_voitran_macos.sh`
+
+## Lifecycle local do app
+- ao abrir, o `VoitranMac` inicia as dependencias reais da fase atual via `scripts/voitran_services.sh start-all`
+- ao fechar, o app encerra os servicos gerenciados via `scripts/voitran_services.sh stop-all`
+- o painel `Settings` exibe e gerencia `Voice Runtime`, `Voice Sidecar CLI` e `Control Plane`

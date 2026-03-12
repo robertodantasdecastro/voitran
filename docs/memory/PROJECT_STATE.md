@@ -23,6 +23,12 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 
 ## Runtime externo oficial
 - `/Volumes/SSDExterno/Voitran_runtime`
+- subpaths ativos para a fase 1 de voz local:
+  - `/Volumes/SSDExterno/Voitran_runtime/voices/samples`
+  - `/Volumes/SSDExterno/Voitran_runtime/voices/consents`
+  - `/Volumes/SSDExterno/Voitran_runtime/voices/profiles`
+  - `/Volumes/SSDExterno/Voitran_runtime/voices/outputs`
+  - `/Volumes/SSDExterno/Voitran_runtime/logs/voice-sidecar`
 
 ## Topologia oficial de agentes
 - `Mac`
@@ -42,3 +48,11 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 - `sync_memory --check` obrigatorio antes de fechar tarefa;
 - modelos e caches fora do repo;
 - artefatos `AppleDouble` `._*` devem ser ignorados e removidos quando surgirem no workspace.
+
+## Estado atual de produto
+- `VoitranMac` possui fluxo guiado de `Voice Lab` para consentimento, gravacao local, build de perfil e preview de sintese;
+- sidecar local em `Python` responde via CLI JSON para operacoes de voz;
+- fallback atual de preview usa `system-say` se `OpenVoice V2` nao estiver instalado no runtime;
+- perfil vocal local ja possui contrato pronto para reuso nas proximas fases;
+- app macOS gerencia o lifecycle das dependencias da fase atual ao abrir e fechar;
+- pacote instalavel `.pkg` e bundle `.app` estao preparados em `dist/`.
