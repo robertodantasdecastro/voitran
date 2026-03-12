@@ -42,3 +42,13 @@
   - exigir consentimento explicito e rastreavel desde o inicio.
 - Motivo:
   - alinhar arquitetura, produto e risco desde a fundacao.
+
+## 2026-03-12 - Publicacao efetiva do Git dedicado do Voitran
+- Decisao:
+  - efetivar o `.git` proprio na raiz de `/Volumes/SSDExterno/Desenvolvimento/iatools/voitran`;
+  - publicar o bootstrap em `origin/main`;
+  - ignorar artefatos `AppleDouble` `._*` no repo para reduzir ruido operacional em volume externo.
+- Motivo:
+  - remover dependencia acidental do repo pai `peticionei`;
+  - garantir identidade de historico e fluxo de entrega do `Voitran`;
+  - reduzir falhas e ruido de Git causados por metadados do macOS no SSD externo.

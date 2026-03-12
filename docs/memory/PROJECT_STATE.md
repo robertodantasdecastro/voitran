@@ -9,7 +9,8 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 ## Git oficial
 - repositorio local dedicado na raiz do projeto;
 - branch default: `main`;
-- remote esperado: `git@github.com:robertodantasdecastro/voitran.git`.
+- remote oficial: `git@github.com:robertodantasdecastro/voitran.git`;
+- bootstrap publicado em `origin/main` em `2026-03-12`.
 
 ## Estrutura principal
 - `apps/`
@@ -39,4 +40,5 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 - stack local desligado por padrao fora de trabalho;
 - `WF_NovoProjeto` usado como entrada do ciclo;
 - `sync_memory --check` obrigatorio antes de fechar tarefa;
-- modelos e caches fora do repo.
+- modelos e caches fora do repo;
+- artefatos `AppleDouble` `._*` devem ser ignorados e removidos quando surgirem no workspace.
