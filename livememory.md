@@ -12,6 +12,7 @@
 - `2026-03-12`: bundle instalado passou a embarcar scripts operacionais e foi validado em `/Applications`.
 - `2026-03-12`: duracao das gravacoes do `Voice Lab` corrigida pela leitura do WAV final; payloads JSON de perfil foram alinhados com o sidecar.
 - `2026-03-12`: modo debug do app ativado com log local; estado do `Voice Lab` passou a reconciliar perfis carregados no launch.
+- `2026-03-12`: icone do `VoitranMac` passou a ser gerado e empacotado automaticamente no build do app.
 
 ## Foco ativo
 - consolidar o runtime local de clonagem com `OpenVoice V2` no sidecar;

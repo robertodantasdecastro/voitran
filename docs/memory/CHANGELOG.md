@@ -1,6 +1,7 @@
 # Changelog - Voitran
 
 ## 2026-03-12
+- icone nativo do `VoitranMac` passou a ser gerado localmente e embarcado no bundle `.app` e no `.pkg`;
 - `Voice Lab` passou a reconciliar o estado com perfis ja existentes, evitando tela presa em `consent-required` quando um perfil local ativo ja foi carregado;
 - modo debug do app macOS ativado com logs locais em `/Volumes/SSDExterno/Voitran_runtime/logs/app/voitran-macos.log`;
 - `Diagnostics` e `Settings` passaram a expor o estado do debug e o tail dos logs para apoiar investigacao local;

@@ -9,8 +9,10 @@ CONTENTS_DIR="${APP_BUNDLE}/Contents"
 MACOS_DIR="${CONTENTS_DIR}/MacOS"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"
 SCRIPTS_DIR="${RESOURCES_DIR}/scripts"
+ICON_PATH="${DIST_DIR}/Voitran.icns"
 
 mkdir -p "${DIST_DIR}"
+(cd "${ROOT_DIR}" && bash "scripts/generate_voitran_app_icon.sh")
 (cd "${APP_DIR}" && swift build -c release)
 
 RELEASE_BIN="$(find "${APP_DIR}/.build" -type f -name VoitranMac -path '*release*' | head -1)"
@@ -28,6 +30,7 @@ cp "${ROOT_DIR}/scripts/bootstrap_voice_runtime.sh" "${SCRIPTS_DIR}/bootstrap_vo
 cp "${ROOT_DIR}/scripts/voice_sidecar.py" "${SCRIPTS_DIR}/voice_sidecar.py"
 cp "${ROOT_DIR}/scripts/voice_sidecar_requirements.txt" "${SCRIPTS_DIR}/voice_sidecar_requirements.txt"
 cp "${ROOT_DIR}/scripts/voitran_services.sh" "${SCRIPTS_DIR}/voitran_services.sh"
+cp "${ICON_PATH}" "${RESOURCES_DIR}/Voitran.icns"
 chmod +x "${SCRIPTS_DIR}/voice_runtime.sh" "${SCRIPTS_DIR}/bootstrap_voice_runtime.sh" "${SCRIPTS_DIR}/voitran_services.sh"
 
 cat >"${CONTENTS_DIR}/Info.plist" <<'EOF'
@@ -41,6 +44,8 @@ cat >"${CONTENTS_DIR}/Info.plist" <<'EOF'
   <string>VoitranMac</string>
   <key>CFBundleIdentifier</key>
   <string>com.voitran.mac</string>
+  <key>CFBundleIconFile</key>
+  <string>Voitran</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
