@@ -49,6 +49,27 @@ final class AppDebugLogger {
             .suffix(lines)
             .joined(separator: "\n")
     }
+
+    func readCurrentSessionTail(lines: Int = 40) -> String {
+        guard let data = try? Data(contentsOf: logFileURL),
+              let content = String(data: data, encoding: .utf8) else {
+            return "nenhum log disponivel"
+        }
+
+        let entries = content
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map(String.init)
+
+        guard let lastLaunchIndex = entries.lastIndex(where: { entry in
+            entry.contains("\"category\":\"lifecycle\"") && entry.contains("\"message\":\"app launch\"")
+        }) else {
+            return entries.suffix(lines).joined(separator: "\n")
+        }
+
+        return entries[lastLaunchIndex...]
+            .suffix(lines)
+            .joined(separator: "\n")
+    }
 }
 
 private struct LogEvent: Encodable {

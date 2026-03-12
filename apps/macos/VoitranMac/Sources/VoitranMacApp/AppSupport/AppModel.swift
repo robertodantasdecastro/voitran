@@ -532,7 +532,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshDebugLogTail() {
-        debugLogTail = logger.readTail()
+        debugLogTail = logger.readCurrentSessionTail()
     }
 
     private func createConsentManifest() throws -> URL {
