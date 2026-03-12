@@ -124,6 +124,20 @@ final class AppModel: ObservableObject {
         canTrainFromLatestSamples
     }
 
+    var cloneEngineReady: Bool {
+        runtimeHealth?.preferredEngine == "openvoice-v2"
+    }
+
+    var synthesisButtonTitle: String {
+        cloneEngineReady ? "Falar com minha voz" : "Ouvir fallback do sistema"
+    }
+
+    var synthesisStatusMessage: String {
+        cloneEngineReady
+            ? "clonagem de voz ativa no runtime local"
+            : "clonagem real indisponivel; a saida atual usa a voz sintetica do macOS"
+    }
+
     func handleApplicationLaunch() async {
         guard !didLaunchLifecycle else { return }
         didLaunchLifecycle = true

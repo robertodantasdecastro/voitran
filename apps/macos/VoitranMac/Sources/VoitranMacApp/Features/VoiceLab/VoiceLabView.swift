@@ -40,6 +40,8 @@ struct VoiceLabView: View {
                 } else {
                     Text("Perfil vocal: nenhum")
                 }
+                Text(model.synthesisStatusMessage)
+                    .foregroundStyle(model.cloneEngineReady ? .green : .orange)
                 if let error = model.lastErrorMessage {
                     Text(error)
                         .foregroundStyle(.red)
@@ -105,6 +107,10 @@ struct VoiceLabView: View {
                 Text("Progresso: \(model.recordedSamples.count)/\(model.guidedPhrases.count) frases")
                 ProgressView(value: model.recordingLevel)
                 Text("Tempo atual: \(model.recordingSeconds.formatted(.number.precision(.fractionLength(1))))s")
+                if !model.cloneEngineReady {
+                    Text("Aviso: o runtime atual ainda nao clona a voz. O teste de reproducao usa fallback do sistema.")
+                        .foregroundStyle(.orange)
+                }
 
                 HStack {
                     Button("Iniciar gravacao") {
@@ -168,7 +174,7 @@ struct VoiceLabView: View {
                 TextField("Texto para ouvir na sua voz local", text: $model.synthesisText, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                 HStack {
-                    Button("Falar com minha voz") {
+                    Button(model.synthesisButtonTitle) {
                         Task { await model.synthesizePreview() }
                     }
                     .disabled(model.currentProfile == nil || model.isBusy)
@@ -184,6 +190,8 @@ struct VoiceLabView: View {
                     Text("Latencia: \(synthesis.latencyMilliseconds) ms")
                     Text("Engine: \(synthesis.engine)")
                 }
+                Text(model.synthesisStatusMessage)
+                    .foregroundStyle(model.cloneEngineReady ? .green : .orange)
                 if let smoke = model.lastSmokeReport {
                     Text("Smoke report: \(smoke.reportPath)")
                         .font(.caption)

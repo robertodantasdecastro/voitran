@@ -113,7 +113,13 @@ def preferred_engine() -> tuple[str, list[str], list[str]]:
     else:
         warnings.append("comando 'say' indisponivel no macOS atual")
 
-    preferred = "openvoice-v2" if "openvoice-v2" in engines else (engines[0] if engines else "unavailable")
+    if "openvoice-v2" in engines:
+        preferred = "openvoice-v2"
+    elif "system-say-fallback" in engines:
+        preferred = "system-say-fallback"
+    else:
+        preferred = "unavailable"
+
     return preferred, engines, warnings
 
 
