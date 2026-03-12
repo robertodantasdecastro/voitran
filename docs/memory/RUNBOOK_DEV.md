@@ -58,3 +58,11 @@ bash scripts/build_voitran_macos_app.sh
 bash scripts/package_voitran_macos.sh
 bash scripts/install_voitran_macos.sh
 ```
+
+## Validacao do app instalado
+```bash
+bash /Applications/VoitranMac.app/Contents/Resources/scripts/voice_runtime.sh health
+bash /Applications/VoitranMac.app/Contents/Resources/scripts/voitran_services.sh status-all
+open -a /Applications/VoitranMac.app
+osascript -e 'tell application "VoitranMac" to quit'
+```

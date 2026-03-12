@@ -8,6 +8,7 @@ APP_BUNDLE="${DIST_DIR}/VoitranMac.app"
 CONTENTS_DIR="${APP_BUNDLE}/Contents"
 MACOS_DIR="${CONTENTS_DIR}/MacOS"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"
+SCRIPTS_DIR="${RESOURCES_DIR}/scripts"
 
 mkdir -p "${DIST_DIR}"
 (cd "${APP_DIR}" && swift build -c release)
@@ -19,9 +20,15 @@ if [[ -z "${RELEASE_BIN}" ]]; then
 fi
 
 rm -rf "${APP_BUNDLE}"
-mkdir -p "${MACOS_DIR}" "${RESOURCES_DIR}"
+mkdir -p "${MACOS_DIR}" "${RESOURCES_DIR}" "${SCRIPTS_DIR}"
 
 cp "${RELEASE_BIN}" "${MACOS_DIR}/VoitranMac"
+cp "${ROOT_DIR}/scripts/voice_runtime.sh" "${SCRIPTS_DIR}/voice_runtime.sh"
+cp "${ROOT_DIR}/scripts/bootstrap_voice_runtime.sh" "${SCRIPTS_DIR}/bootstrap_voice_runtime.sh"
+cp "${ROOT_DIR}/scripts/voice_sidecar.py" "${SCRIPTS_DIR}/voice_sidecar.py"
+cp "${ROOT_DIR}/scripts/voice_sidecar_requirements.txt" "${SCRIPTS_DIR}/voice_sidecar_requirements.txt"
+cp "${ROOT_DIR}/scripts/voitran_services.sh" "${SCRIPTS_DIR}/voitran_services.sh"
+chmod +x "${SCRIPTS_DIR}/voice_runtime.sh" "${SCRIPTS_DIR}/bootstrap_voice_runtime.sh" "${SCRIPTS_DIR}/voitran_services.sh"
 
 cat >"${CONTENTS_DIR}/Info.plist" <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>

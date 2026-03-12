@@ -1,6 +1,12 @@
 # Changelog - Voitran
 
 ## 2026-03-12
+- bundle instalado do `VoitranMac` passou a embarcar scripts operacionais em `Contents/Resources/scripts`;
+- resolucao de paths do app macOS foi ajustada para priorizar recursos do bundle quando executado fora do repo;
+- `install_voitran_macos.sh` e `package_voitran_macos.sh` passaram a usar `ditto` para copiar o `.app` com consistencia;
+- `bootstrap_voice_runtime.sh` passou a reutilizar o `venv` local quando `requirements` nao mudam;
+- instalacao em `/Applications/VoitranMac.app` validada com sucesso e os scripts do bundle responderam a `health` e `status-all`;
+- ciclo de vida do app instalado foi validado: launch inicia o bootstrap local e quit encerra o app sem deixar processo residual;
 - lifecycle do `VoitranMac` passou a iniciar dependencias no launch e encerrar servicos gerenciados no quit;
 - painel de configuracao e gerenciamento de servicos dependentes adicionado ao app;
 - scripts de gerenciamento de servicos, build do `.app`, empacotamento `.pkg` e instalacao local do macOS adicionados;

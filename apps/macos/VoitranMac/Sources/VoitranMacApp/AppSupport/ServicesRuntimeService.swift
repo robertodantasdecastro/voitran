@@ -16,7 +16,7 @@ enum ManagedServicesError: LocalizedError {
 
 struct ServicesRuntimeService {
     private var scriptURL: URL {
-        RuntimePaths.repoRoot.appendingPathComponent("scripts/voitran_services.sh")
+        RuntimePaths.servicesScript
     }
 
     func statusAll() async throws -> ManagedServicesResponse {
@@ -60,7 +60,7 @@ struct ServicesRuntimeService {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/bash")
             process.arguments = [script.path] + arguments
-            process.currentDirectoryURL = RuntimePaths.repoRoot
+            process.currentDirectoryURL = RuntimePaths.workingDirectory
 
             let outputPipe = Pipe()
             let errorPipe = Pipe()
@@ -94,7 +94,7 @@ struct ServicesRuntimeService {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = [script.path] + arguments
-        process.currentDirectoryURL = RuntimePaths.repoRoot
+        process.currentDirectoryURL = RuntimePaths.workingDirectory
 
         let outputPipe = Pipe()
         let errorPipe = Pipe()

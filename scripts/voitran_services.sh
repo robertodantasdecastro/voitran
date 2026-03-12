@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 RUNTIME_DIR="${VOITRAN_RUNTIME_ROOT:-/Volumes/SSDExterno/Voitran_runtime}"
 STATE_DIR="${RUNTIME_DIR}/services"
 PID_DIR="${STATE_DIR}/pids"
@@ -10,6 +11,7 @@ BIN_DIR="${RUNTIME_DIR}/bin"
 CONTROL_PLANE_PID_FILE="${PID_DIR}/control-plane.pid"
 CONTROL_PLANE_PORT="${VOITRAN_CONTROL_PLANE_PORT:-8080}"
 CONTROL_PLANE_HOST="${VOITRAN_CONTROL_PLANE_HOST:-127.0.0.1}"
+CONTROL_PLANE_DIR="${VOITRAN_CONTROL_PLANE_DIR:-${ROOT_DIR}/backend/control-plane}"
 
 mkdir -p "${PID_DIR}" "${LOG_DIR}" "${BIN_DIR}"
 
@@ -30,8 +32,13 @@ start_control_plane() {
     return 0
   fi
 
+  if [[ ! -d "${CONTROL_PLANE_DIR}" ]]; then
+    echo "[voitran_services] control-plane indisponivel neste bundle: ${CONTROL_PLANE_DIR}" >&2
+    return 1
+  fi
+
   (
-    cd "${ROOT_DIR}/backend/control-plane"
+    cd "${CONTROL_PLANE_DIR}"
     HOST="${CONTROL_PLANE_HOST}" \
     PORT="${CONTROL_PLANE_PORT}" \
     APP_ENV="desktop-local" \
@@ -51,7 +58,7 @@ stop_control_plane() {
 }
 
 voice_runtime_health_json() {
-  bash "${ROOT_DIR}/scripts/voice_runtime.sh" health
+  bash "${SCRIPT_DIR}/voice_runtime.sh" health
 }
 
 status_control_plane_json() {
@@ -77,14 +84,14 @@ status_services_json() {
   cat <<EOF
 {"services":[
 {"id":"voice-runtime","name":"Voice Runtime","kind":"bootstrap","status":"${sidecar_status}","runtime_health":${runtime_json},"managed_on_launch":true,"managed_on_exit":false},
-{"id":"voice-sidecar-cli","name":"Voice Sidecar CLI","kind":"on-demand","status":"${sidecar_status}","script":"${ROOT_DIR}/scripts/voice_runtime.sh","managed_on_launch":true,"managed_on_exit":false},
+{"id":"voice-sidecar-cli","name":"Voice Sidecar CLI","kind":"on-demand","status":"${sidecar_status}","script":"${SCRIPT_DIR}/voice_runtime.sh","managed_on_launch":true,"managed_on_exit":false},
 $(status_control_plane_json | python3 -c 'import json,sys; item=json.load(sys.stdin); item["managed_on_launch"]=False; item["managed_on_exit"]=True; print(json.dumps(item, separators=(",", ":")))')
 ]}
 EOF
 }
 
 start_all() {
-  bash "${ROOT_DIR}/scripts/bootstrap_voice_runtime.sh" >/dev/null
+  bash "${SCRIPT_DIR}/bootstrap_voice_runtime.sh" >/dev/null
   status_services_json
 }
 
@@ -110,7 +117,7 @@ case "${1:-}" in
         status_control_plane_json
         ;;
       voice-runtime|voice-sidecar-cli)
-        bash "${ROOT_DIR}/scripts/bootstrap_voice_runtime.sh" >/dev/null
+        bash "${SCRIPT_DIR}/bootstrap_voice_runtime.sh" >/dev/null
         status_services_json
         ;;
       *)

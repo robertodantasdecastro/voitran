@@ -11,7 +11,7 @@ bash "${ROOT_DIR}/scripts/build_voitran_macos_app.sh"
 
 rm -rf "${PKG_ROOT}" "${PKG_OUTPUT}"
 mkdir -p "${PKG_ROOT}/Applications"
-cp -R "${APP_BUNDLE}" "${PKG_ROOT}/Applications/VoitranMac.app"
+ditto "${APP_BUNDLE}" "${PKG_ROOT}/Applications/VoitranMac.app"
 
 if command -v pkgbuild >/dev/null 2>&1; then
   pkgbuild \

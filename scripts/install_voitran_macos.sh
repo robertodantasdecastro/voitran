@@ -8,7 +8,7 @@ APP_TARGET="${TARGET_DIR}/VoitranMac.app"
 bash "${ROOT_DIR}/scripts/build_voitran_macos_app.sh"
 mkdir -p "${TARGET_DIR}"
 rm -rf "${APP_TARGET}"
-cp -R "${ROOT_DIR}/dist/VoitranMac.app" "${APP_TARGET}"
+ditto "${ROOT_DIR}/dist/VoitranMac.app" "${APP_TARGET}"
 bash "${ROOT_DIR}/scripts/bootstrap_voice_runtime.sh"
 
 cat <<EOF

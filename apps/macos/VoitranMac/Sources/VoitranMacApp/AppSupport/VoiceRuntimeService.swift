@@ -53,7 +53,7 @@ struct VoiceRuntimeService {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = [script.path]
-        process.currentDirectoryURL = RuntimePaths.repoRoot
+        process.currentDirectoryURL = RuntimePaths.workingDirectory
 
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -83,7 +83,7 @@ struct VoiceRuntimeService {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/bash")
             process.arguments = [script.path, command]
-            process.currentDirectoryURL = RuntimePaths.repoRoot
+            process.currentDirectoryURL = RuntimePaths.workingDirectory
 
             let inputPipe = Pipe()
             let outputPipe = Pipe()

@@ -55,4 +55,6 @@ Criar e evoluir um produto `local-first` de chamada com traducao de voz em tempo
 - fallback atual de preview usa `system-say` se `OpenVoice V2` nao estiver instalado no runtime;
 - perfil vocal local ja possui contrato pronto para reuso nas proximas fases;
 - app macOS gerencia o lifecycle das dependencias da fase atual ao abrir e fechar;
-- pacote instalavel `.pkg` e bundle `.app` estao preparados em `dist/`.
+- bundle `.app` embarca scripts operacionais em `Contents/Resources/scripts` para rodar instalado fora do repo;
+- pacote instalavel `.pkg` e bundle `.app` estao preparados em `dist/`;
+- instalacao local em `/Applications/VoitranMac.app` ja foi validada com `health`, `status-all`, launch e quit do app instalado.

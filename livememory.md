@@ -9,11 +9,12 @@
 - `2026-03-12`: repositorio dedicado publicado em `origin/main` e isolado do repo pai.
 - `2026-03-12`: fase 1 do `Voice Lab` implementada com sidecar local, fluxo guiado de enrolment e preview por texto.
 - `2026-03-12`: lifecycle do app e instalador macOS preparados para o lote local.
+- `2026-03-12`: bundle instalado passou a embarcar scripts operacionais e foi validado em `/Applications`.
 
 ## Foco ativo
 - consolidar o runtime local de clonagem com `OpenVoice V2` no sidecar;
 - validar captacao guiada, perfil vocal e preview local no `VoitranMac`;
-- testar instalacao local do bundle/pacote no macOS alvo;
+- testar manualmente o `Voice Lab` no app ja instalado no macOS alvo;
 - preservar higiene do Git em volume externo, evitando artefatos `AppleDouble`;
 - preparar a evolucao da mesma base para `STT -> traducao -> TTS`.
 
@@ -26,5 +27,5 @@
 ## Proximo checkpoint
 - instalar e validar `OpenVoice V2` no runtime externo;
 - substituir o fallback de sintese por clonagem efetiva com voz do usuario;
-- instalar o app empacotado e validar o lifecycle completo no macOS;
+- validar manualmente o fluxo guiado do `Voice Lab` no app instalado no macOS;
 - iniciar benchmark de latencia e qualidade do `Voice Lab`.

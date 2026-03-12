@@ -3,6 +3,26 @@ import Foundation
 enum RuntimePaths {
     static let runtimeRoot = URL(fileURLWithPath: "/Volumes/SSDExterno/Voitran_runtime", isDirectory: true)
 
+    static var supportRoot: URL {
+        if let bundled = bundledSupportRoot {
+            return bundled
+        }
+        return repoRoot
+    }
+
+    static var bundledSupportRoot: URL? {
+        guard let resourceURL = Bundle.main.resourceURL else {
+            return nil
+        }
+
+        let scriptsDirectory = resourceURL.appendingPathComponent("scripts", isDirectory: true)
+        if FileManager.default.fileExists(atPath: scriptsDirectory.path) {
+            return resourceURL
+        }
+
+        return nil
+    }
+
     static var repoRoot: URL {
         let fileManager = FileManager.default
         var candidate = URL(fileURLWithPath: fileManager.currentDirectoryPath, isDirectory: true)
@@ -25,15 +45,19 @@ enum RuntimePaths {
     }
 
     static var sidecarScript: URL {
-        repoRoot.appendingPathComponent("scripts/voice_runtime.sh")
+        supportRoot.appendingPathComponent("scripts/voice_runtime.sh")
     }
 
     static var servicesScript: URL {
-        repoRoot.appendingPathComponent("scripts/voitran_services.sh")
+        supportRoot.appendingPathComponent("scripts/voitran_services.sh")
     }
 
     static var bootstrapScript: URL {
-        repoRoot.appendingPathComponent("scripts/bootstrap_voice_runtime.sh")
+        supportRoot.appendingPathComponent("scripts/bootstrap_voice_runtime.sh")
+    }
+
+    static var workingDirectory: URL {
+        supportRoot
     }
 
     static var samplesDirectory: URL {
