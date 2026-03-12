@@ -1,6 +1,9 @@
 # Changelog - Voitran
 
 ## 2026-03-12
+- `Voice Lab` passou a reconciliar o estado com perfis ja existentes, evitando tela presa em `consent-required` quando um perfil local ativo ja foi carregado;
+- modo debug do app macOS ativado com logs locais em `/Volumes/SSDExterno/Voitran_runtime/logs/app/voitran-macos.log`;
+- `Diagnostics` e `Settings` passaram a expor o estado do debug e o tail dos logs para apoiar investigacao local;
 - `Voice Lab` passou a medir a duracao das gravacoes pelo arquivo WAV final, corrigindo amostras que apareciam como `0,0s` na UI;
 - contratos JSON de voz foram alinhados em `snake_case` para o sidecar, corrigindo erros como `voice_profile_id e obrigatorio` em sintese e revogacao;
 - bundle instalado do `VoitranMac` passou a embarcar scripts operacionais em `Contents/Resources/scripts`;

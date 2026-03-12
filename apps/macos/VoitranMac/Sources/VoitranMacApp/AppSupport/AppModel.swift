@@ -57,6 +57,8 @@ final class AppModel: ObservableObject {
     @Published var synthesisText = "Ola. Esta e uma amostra local da minha voz sintetizada no Voitran."
     @Published var lastSynthesisResult: VoiceSynthesisResult?
     @Published var isBusy = false
+    @Published var debugModeEnabled = true
+    @Published var debugLogTail = "nenhum log disponivel"
 
     let capabilityProfile = CapabilityProfile(
         deviceClass: "mac-apple-silicon",
@@ -68,6 +70,7 @@ final class AppModel: ObservableObject {
     private let servicesRuntimeService = ServicesRuntimeService()
     private let audioCaptureService = AudioCaptureService()
     private let audioPlaybackService = AudioPlaybackService()
+    private let logger = AppDebugLogger.shared
     private var recordingTimer: Timer?
     private var currentRecordingURL: URL?
     private var didLaunchLifecycle = false
@@ -105,12 +108,15 @@ final class AppModel: ObservableObject {
     func handleApplicationLaunch() async {
         guard !didLaunchLifecycle else { return }
         didLaunchLifecycle = true
+        logger.log("app launch", category: "lifecycle")
         await startManagedDependencies()
         await refreshRuntime()
         await loadExistingProfiles()
+        refreshDebugLogTail()
     }
 
     func handleApplicationTermination() {
+        logger.log("app termination", category: "lifecycle")
         servicesRuntimeService.stopAllSync()
     }
 
@@ -119,6 +125,7 @@ final class AppModel: ObservableObject {
             let response = try await servicesRuntimeService.statusAll()
             managedServices = response.services
             servicesMessage = "status atualizado"
+            debug("status de servicos atualizado", category: "services", metadata: ["count": "\(response.services.count)"])
         } catch {
             setError(error)
         }
@@ -132,6 +139,7 @@ final class AppModel: ObservableObject {
             let response = try await servicesRuntimeService.startAll()
             managedServices = response.services
             servicesMessage = "dependencias iniciadas no launch do app"
+            debug("dependencias iniciadas", category: "services")
             if let runtime = response.services.first(where: { $0.id == "voice-runtime" })?.runtimeHealth {
                 runtimeHealth = runtime
                 runtimeWarnings = runtime.warnings
@@ -149,6 +157,7 @@ final class AppModel: ObservableObject {
             let response = try await servicesRuntimeService.stopAll()
             managedServices = response.services
             servicesMessage = "dependencias encerradas"
+            debug("dependencias encerradas", category: "services")
         } catch {
             setError(error)
         }
@@ -162,6 +171,7 @@ final class AppModel: ObservableObject {
             let response = try await servicesRuntimeService.start(serviceID: id)
             managedServices = response.services
             servicesMessage = "servico \(id) iniciado"
+            debug("servico iniciado", category: "services", metadata: ["service_id": id])
         } catch {
             setError(error)
         }
@@ -175,6 +185,7 @@ final class AppModel: ObservableObject {
             let response = try await servicesRuntimeService.stop(serviceID: id)
             managedServices = response.services
             servicesMessage = "servico \(id) encerrado"
+            debug("servico encerrado", category: "services", metadata: ["service_id": id])
         } catch {
             setError(error)
         }
@@ -184,6 +195,14 @@ final class AppModel: ObservableObject {
         do {
             runtimeHealth = try await voiceRuntimeService.health()
             runtimeWarnings = runtimeHealth?.warnings ?? []
+            debug(
+                "runtime revalidado",
+                category: "runtime",
+                metadata: [
+                    "ready": "\(runtimeHealth?.ready == true)",
+                    "preferred_engine": runtimeHealth?.preferredEngine ?? "indisponivel"
+                ]
+            )
             await refreshManagedServices()
         } catch {
             runtimeHealth = nil
@@ -198,6 +217,7 @@ final class AppModel: ObservableObject {
 
         do {
             _ = try await voiceRuntimeService.bootstrap()
+            debug("bootstrap do runtime concluido", category: "runtime")
             await refreshRuntime()
             await refreshManagedServices()
         } catch {
@@ -207,6 +227,7 @@ final class AppModel: ObservableObject {
 
     func requestMicrophoneAccess() async {
         microphoneGranted = await audioCaptureService.requestPermission()
+        debug("permissao de microfone atualizada", category: "audio", metadata: ["granted": "\(microphoneGranted)"])
         if microphoneGranted && consentAccepted && readyChecklistComplete {
             voiceLabPhase = .readyToRecord
         }
@@ -216,12 +237,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshVoiceLabReadiness() {
-        if canAdvanceToRecording {
-            voiceLabPhase = .readyToRecord
-            lastErrorMessage = nil
-        } else if !consentAccepted {
-            voiceLabPhase = .consentRequired
-        }
+        reconcileVoiceLabState()
     }
 
     func startRecordingCurrentPhrase() {
@@ -231,6 +247,7 @@ final class AppModel: ObservableObject {
             try audioCaptureService.startRecording(to: url)
             currentRecordingURL = url
             voiceLabPhase = .recording
+            debug("gravacao iniciada", category: "audio", metadata: ["phrase_id": currentPhrase.id, "path": url.path])
             recordingSeconds = 0
             recordingLevel = 0
             recordingTimer?.invalidate()
@@ -270,7 +287,16 @@ final class AppModel: ObservableObject {
             recordingSeconds = duration
             recordingLevel = 0
             currentPhraseIndex = min(currentPhraseIndex + 1, guidedPhrases.count - 1)
-            voiceLabPhase = canBuildProfile ? .validating : .readyToRecord
+            debug(
+                "gravacao finalizada",
+                category: "audio",
+                metadata: [
+                    "phrase_id": sample.phrase.id,
+                    "duration_seconds": "\(resolvedDuration(for: sample))",
+                    "total_recorded_seconds": "\(totalRecordedSeconds)"
+                ]
+            )
+            reconcileVoiceLabState()
         } catch {
             setError(error)
         }
@@ -304,8 +330,11 @@ final class AppModel: ObservableObject {
             enrollmentResult = result
             currentProfile = result.voiceProfile
             runtimeWarnings = result.warnings
-            voiceLabPhase = .readyForSynthesis
             sessionStatus = "voice-profile-ready"
+            consentAccepted = true
+            readyChecklistComplete = true
+            debug("perfil vocal criado", category: "voice_lab", metadata: ["profile_id": result.voiceProfile.id, "latency_ms": "\(result.latencyMilliseconds)"])
+            reconcileVoiceLabState()
         } catch {
             setError(error)
         }
@@ -331,7 +360,8 @@ final class AppModel: ObservableObject {
             lastSynthesisResult = result
             runtimeWarnings = result.warnings
             try audioPlaybackService.play(url: URL(fileURLWithPath: result.outputAudioPath))
-            voiceLabPhase = .readyForSynthesis
+            debug("sintese concluida", category: "voice_lab", metadata: ["profile_id": result.voiceProfileID, "engine": result.engine, "latency_ms": "\(result.latencyMilliseconds)"])
+            reconcileVoiceLabState()
         } catch {
             setError(error)
         }
@@ -342,7 +372,11 @@ final class AppModel: ObservableObject {
             if let profile = try await voiceRuntimeService.listProfiles().last {
                 currentProfile = profile
                 sessionStatus = profile.status == "ready" ? "voice-profile-ready" : "idle"
+                consentAccepted = true
+                readyChecklistComplete = true
+                debug("perfil existente carregado", category: "voice_lab", metadata: ["profile_id": profile.id, "status": profile.status])
             }
+            reconcileVoiceLabState()
         } catch {
             setError(error)
         }
@@ -360,10 +394,21 @@ final class AppModel: ObservableObject {
             enrollmentResult = nil
             lastSynthesisResult = nil
             sessionStatus = "idle"
-            voiceLabPhase = canAdvanceToRecording ? .readyToRecord : .consentRequired
+            debug("perfil vocal revogado", category: "voice_lab")
+            reconcileVoiceLabState()
         } catch {
             setError(error)
         }
+    }
+
+    func setDebugMode(enabled: Bool) {
+        debugModeEnabled = enabled
+        logger.log("modo debug atualizado", category: "debug", metadata: ["enabled": "\(enabled)"])
+        refreshDebugLogTail()
+    }
+
+    func refreshDebugLogTail() {
+        debugLogTail = logger.readTail()
     }
 
     private func createConsentManifest() throws -> URL {
@@ -396,6 +441,8 @@ final class AppModel: ObservableObject {
     private func setErrorMessage(_ message: String) {
         lastErrorMessage = message
         voiceLabPhase = .error
+        logger.log("erro", category: "error", metadata: ["message": message])
+        refreshDebugLogTail()
     }
 
     func resolvedDuration(for sample: RecordedVoiceSample) -> Double {
@@ -404,6 +451,38 @@ final class AppModel: ObservableObject {
 
     private func resolvedDuration(at url: URL) -> Double {
         AudioCaptureService.recordedDuration(at: url)
+    }
+
+    private func reconcileVoiceLabState() {
+        if currentProfile?.status == "ready" {
+            voiceLabPhase = .readyForSynthesis
+            lastErrorMessage = nil
+        } else if canBuildProfile {
+            voiceLabPhase = .validating
+            lastErrorMessage = nil
+        } else if canAdvanceToRecording {
+            voiceLabPhase = .readyToRecord
+            lastErrorMessage = nil
+        } else {
+            voiceLabPhase = .consentRequired
+        }
+
+        debug(
+            "estado do voice lab reconciliado",
+            category: "voice_lab",
+            metadata: [
+                "phase": voiceLabPhase.rawValue,
+                "profile_ready": "\(currentProfile?.status == "ready")",
+                "recorded_count": "\(recordedSamples.count)",
+                "total_recorded_seconds": "\(totalRecordedSeconds)"
+            ]
+        )
+    }
+
+    private func debug(_ message: String, category: String, metadata: [String: String] = [:]) {
+        guard debugModeEnabled else { return }
+        logger.log(message, category: category, metadata: metadata)
+        refreshDebugLogTail()
     }
 }
 

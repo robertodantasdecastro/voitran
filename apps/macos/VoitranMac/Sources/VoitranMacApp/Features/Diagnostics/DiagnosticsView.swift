@@ -28,8 +28,19 @@ struct DiagnosticsView: View {
                 Text("Erro atual: \(error)")
                     .foregroundStyle(.red)
             }
+            Text("Debug mode: \(model.debugModeEnabled ? "ativo" : "inativo")")
+            Text("Log do app: \(RuntimePaths.appLogsDirectory.appendingPathComponent("voitran-macos.log").path)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             ForEach(model.managedServices) { service in
                 Text("\(service.name): \(service.status)")
+            }
+            Divider()
+            ScrollView {
+                Text(model.debugLogTail)
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             Spacer()
         }

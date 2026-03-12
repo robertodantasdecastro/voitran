@@ -8,15 +8,26 @@ struct SettingsView: View {
             Toggle("Priorizar pipeline local", isOn: .constant(true))
             Toggle("Permitir degradacao para legenda traduzida", isOn: .constant(true))
             Toggle("Exigir consentimento de voz", isOn: .constant(true))
+            Toggle(
+                "Modo debug do app",
+                isOn: Binding(
+                    get: { model.debugModeEnabled },
+                    set: { model.setDebugMode(enabled: $0) }
+                )
+            )
             Divider()
             Text("Runtime")
                 .font(.title3.bold())
             Text("Path do runtime: \(RuntimePaths.runtimeRoot.path)")
+            Text("Logs do app: \(RuntimePaths.appLogsDirectory.appendingPathComponent("voitran-macos.log").path)")
             Text("Idiomas aprovados: \(model.voicePolicy.approvedLocales.joined(separator: ", "))")
             Text("Retencao local: \(model.voicePolicy.retentionPolicy)")
             Text("Script de servicos: \(RuntimePaths.servicesScript.path)")
             Button("Bootstrap do runtime") {
                 Task { await model.bootstrapRuntime() }
+            }
+            Button("Atualizar logs") {
+                model.refreshDebugLogTail()
             }
             Divider()
             Text("Servicos dependentes")

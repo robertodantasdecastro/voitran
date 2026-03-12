@@ -75,4 +75,8 @@ enum RuntimePaths {
     static var outputsDirectory: URL {
         runtimeRoot.appendingPathComponent("voices/outputs", isDirectory: true)
     }
+
+    static var appLogsDirectory: URL {
+        runtimeRoot.appendingPathComponent("logs/app", isDirectory: true)
+    }
 }
