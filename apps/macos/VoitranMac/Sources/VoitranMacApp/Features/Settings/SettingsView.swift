@@ -57,13 +57,19 @@ struct SettingsView: View {
                     if let script = service.script {
                         Text("Script: \(script)")
                     }
+                    if let statusDetail = service.statusDetail, !statusDetail.isEmpty {
+                        Text(statusDetail)
+                            .foregroundStyle(.orange)
+                    }
                     HStack {
                         Button("Iniciar") {
                             Task { await model.startService(id: service.id) }
                         }
+                        .disabled(service.available == false || model.isBusy)
                         Button("Encerrar") {
                             Task { await model.stopService(id: service.id) }
                         }
+                        .disabled(service.available == false || model.isBusy)
                     }
                 }
                 .padding(.vertical, 6)
@@ -78,6 +84,10 @@ struct SettingsView: View {
                 Task { await model.revokeCurrentProfile() }
             }
             .disabled(model.currentProfile == nil)
+            Button("Novo perfil de voz") {
+                model.startNewVoiceProfile()
+            }
+            .disabled(!model.canStartNewVoiceProfile)
             Spacer()
         }
         .padding(24)

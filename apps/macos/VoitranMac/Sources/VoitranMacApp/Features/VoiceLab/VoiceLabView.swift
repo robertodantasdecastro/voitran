@@ -121,6 +121,11 @@ struct VoiceLabView: View {
                         Task { await model.buildVoiceProfile() }
                     }
                     .disabled(!model.canBuildProfile || model.isBusy)
+
+                    Button("Novo perfil de voz") {
+                        model.startNewVoiceProfile()
+                    }
+                    .disabled(!model.canStartNewVoiceProfile)
                 }
 
                 ForEach(model.recordedSamples) { sample in

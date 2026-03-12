@@ -14,6 +14,9 @@ struct ManagedServiceStatus: Decodable, Identifiable, Equatable, Sendable {
     let port: Int?
     let logPath: String?
     let script: String?
+    let available: Bool?
+    let statusDetail: String?
+    let installMode: String?
     let managedOnLaunch: Bool?
     let managedOnExit: Bool?
     let runtimeHealth: VoiceRuntimeHealth?
@@ -28,6 +31,9 @@ struct ManagedServiceStatus: Decodable, Identifiable, Equatable, Sendable {
         case port
         case logPath = "log_path"
         case script
+        case available
+        case statusDetail = "status_detail"
+        case installMode = "install_mode"
         case managedOnLaunch = "managed_on_launch"
         case managedOnExit = "managed_on_exit"
         case runtimeHealth = "runtime_health"

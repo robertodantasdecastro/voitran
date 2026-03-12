@@ -64,12 +64,23 @@ voice_runtime_health_json() {
 status_control_plane_json() {
   local status="stopped"
   local pid="null"
+  local available="true"
+  local status_detail=""
+  local install_mode="development"
+
+  if [[ ! -d "${CONTROL_PLANE_DIR}" ]]; then
+    available="false"
+    status="unavailable"
+    status_detail="servico disponivel apenas no ambiente de desenvolvimento"
+    install_mode="bundled-app"
+  fi
+
   if service_running "${CONTROL_PLANE_PID_FILE}"; then
     status="running"
     pid="$(cat "${CONTROL_PLANE_PID_FILE}")"
   fi
   cat <<EOF
-{"id":"control-plane","name":"Control Plane","kind":"process","status":"${status}","pid":${pid},"host":"${CONTROL_PLANE_HOST}","port":${CONTROL_PLANE_PORT},"log_path":"${LOG_DIR}/control-plane.log"}
+{"id":"control-plane","name":"Control Plane","kind":"process","status":"${status}","pid":${pid},"host":"${CONTROL_PLANE_HOST}","port":${CONTROL_PLANE_PORT},"log_path":"${LOG_DIR}/control-plane.log","available":${available},"status_detail":"${status_detail}","install_mode":"${install_mode}"}
 EOF
 }
 

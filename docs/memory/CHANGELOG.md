@@ -1,6 +1,8 @@
 # Changelog - Voitran
 
 ## 2026-03-12
+- `Control Plane` passou a ser marcado como indisponivel no app instalado, com detalhe explicito de que o servico existe apenas no ambiente de desenvolvimento;
+- `Voice Lab` e `Settings` ganharam acao explicita de `Novo perfil de voz` para reiniciar a captura sem ficar preso ao perfil anterior;
 - icone nativo do `VoitranMac` passou a ser gerado localmente e embarcado no bundle `.app` e no `.pkg`;
 - `Voice Lab` passou a reconciliar o estado com perfis ja existentes, evitando tela presa em `consent-required` quando um perfil local ativo ja foi carregado;
 - modo debug do app macOS ativado com logs locais em `/Volumes/SSDExterno/Voitran_runtime/logs/app/voitran-macos.log`;

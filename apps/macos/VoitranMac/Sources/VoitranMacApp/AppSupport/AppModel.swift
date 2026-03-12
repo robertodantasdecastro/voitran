@@ -105,6 +105,10 @@ final class AppModel: ObservableObject {
         managedServices.filter { ["running", "ready"].contains($0.status) }.count
     }
 
+    var canStartNewVoiceProfile: Bool {
+        !isBusy && voiceLabPhase != .recording
+    }
+
     func handleApplicationLaunch() async {
         guard !didLaunchLifecycle else { return }
         didLaunchLifecycle = true
@@ -399,6 +403,23 @@ final class AppModel: ObservableObject {
         } catch {
             setError(error)
         }
+    }
+
+    func startNewVoiceProfile() {
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+        currentRecordingURL = nil
+        recordedSamples = []
+        recordingSeconds = 0
+        recordingLevel = 0
+        currentPhraseIndex = 0
+        currentProfile = nil
+        enrollmentResult = nil
+        lastSynthesisResult = nil
+        lastErrorMessage = nil
+        sessionStatus = "idle"
+        debug("novo perfil vocal iniciado", category: "voice_lab")
+        reconcileVoiceLabState()
     }
 
     func setDebugMode(enabled: Bool) {
